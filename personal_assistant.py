@@ -9,7 +9,7 @@ class Contacts(TypedDict):
     phone: str
 
 
-def parse_input(user_input):
+def parse_input(user_input: str)-> tuple[str, ...]:
     """
     Parse user input into a command and arguments.
 
@@ -65,90 +65,115 @@ def is_valid_contact(contact: Contacts) -> bool:
     return True
 
 
-def add_contact(value: dict, contacts: list[Contacts]):
+def add_contact(value: dict, contacts: list[Contacts])-> str:
 
     """
-    Add a contact to the contacts list.
+    Add a contact to the contact list.
 
     Args:
-        value (dict): The contact dictionary to add.
-        contacts (list[Contacts]): The list of contacts.
+        value (dict): The contact dictionary with name and phone number.
+        contacts (list[Contacts]): The list of contacts to add the new contact to.
 
     Returns:
-        None
-
-    Notes:
-        A contact dictionary must have 'name' and 'phone' keys
-        and the 'name' must be a non-empty string and the 'phone'
-        must be a 10-digit string.
-    """
-    
-    if not is_valid_contact(value):
-        print("Contact invalid")
-
-    if value not in contacts:
-        contacts.append(value)
-        print("Contact added.")
-    else:
-        print("Contact already exists")
-    return    
-    
-
-
-
-def change_contact(value: dict, contact_list: list[Contacts]):
-    """
-    Update a contact in the contact list.
-
-    Args:
-        value (dict): The contact dictionary with updated information.
-        contact_list (list[Contacts]): The list of contacts to search and update.
-
-    Returns:
-        None
+        str: A message indicating whether the contact was added or not.
 
     Notes:
         The function checks if the provided contact dictionary is valid. If valid,
-        it searches for a contact with the same name in the contact list and updates
-        it with the new information. If the contact does not exist, a message is printed.
+        it adds the contact to the list if it does not already exist. If the
+        contact does not exist, a message is printed.
     """
+    if len(value) != 2:
+        return "Insufficient information to add contact."
+    
+    if not is_valid_contact({"name": value[0], "phone": value[1]}):
+        return "Contact invalid"
 
-    if not is_valid_contact(value):
-        print("Contact invalid")
+    if value not in contacts:
+        contacts.append({"name": value[0], "phone": value[1]})
+        return "Contact added."
+    else:
+        return "Contact already exists"  
+    
+
+
+
+def change_contact(value: dict, contact_list: list[Contacts])-> str:
+
+    """
+    Change the phone number of a contact in the contact list.
+
+    Args:
+        value (dict): The contact dictionary with name and phone number.
+        contact_list (list[Contacts]): The list of contacts to change the contact in.
+
+    Returns:
+        str: A message indicating whether the contact was changed or not.
+
+    Notes:
+        The function checks if the provided contact dictionary is valid. If valid,
+        it changes the contact in the list if it already exists. If the contact does
+        not exist, a message is printed.
+    """
+    if len(value) != 2:
+        return "Insufficient information to change contact."
+
+    if not is_valid_contact({"name": value[0], "phone": value[1]}):
+       return "Contact invalid"
     
     for i, contact in enumerate(contact_list):
-        if contact['name'] == value['name']:
-            contact_list[i] = value
-            print("Contact updated.")
-            return
-    print("Contact not found.")
+        if contact['name'] == value[0]:
+            contact_list[i] = {"name": value[0], "phone": value[1]}
+            return "Contact updated."
+    return "Contact not found."
+
+
 
 def show_phone(name: str, contact_list: list[Contacts]):
 
     """
-    Print the phone number of a contact.
+    Display the phone number of a contact in the contact list.
 
     Args:
-        name (str): The name of the contact to search for.
-        contact_list (list[Contacts]): The list of contacts to search in.
+        name (str): The name of the contact to display the phone number for.
+        contact_list (list[Contacts]): The list of contacts to find the contact in.
 
     Returns:
-        None
+        str: A message indicating the phone number of the contact, or a message
+             indicating that the contact was not found.
 
     Notes:
-        If the contact is not found, a message is printed.
+        The function checks if the provided name is valid. If valid, it finds the
+        contact in the list and displays its phone number. If the contact does not
+        exist, a message is printed.
     """
-    if name not in contact_list:
-        print("Contact not found.")
-    else:
-        for contact in contact_list:
-            if contact['name'] == name:
-                print(f"Phone number for {name}: {contact['phone']}")
-                return
+    if len(name) != 1:
+        return "There is not enough information to display the number."
+
+
+    for contact in contact_list:
+        if contact['name'] == name[0]:
+            return f"Phone number for {name[0]}: {contact['phone']}"
+        
+    return f"Contact {name[0]} not found."
 
 def show_all(contacts: list[Contacts]):
-    for item in contacts:
-        print(f"name: {item["name"]} phone: {item["phone"]}", end="")
+    
+    """
+    Display all contacts in the contact list.
+
+    Args:
+        contacts (list[Contacts]): The list of contacts to display.
+
+    Returns:
+        str: A formatted string of all contacts, each with a name and phone number,
+             or a message indicating the contact list is empty.
+    """
+
+    if not contacts:
+        return "Contact list is empty."
+    
+    result = "\n".join([f"name: {item['name']}, phone: {item['phone']}" for item in contacts])
+    return result
 
 
 
@@ -182,24 +207,13 @@ def main():
 
      
             if "add" == command:
-                if len(args) == 2:
-                    add_contact({"name": args[0], "phone": args[1]}, contacts)
-                    print(contacts)
-                else:
-                    print("Insufficient information to add contact.")
+                print(add_contact(args, contacts))
             elif "change" == command:
-                if len(args) == 2:
-                    change_contact({"name": args[0], "phone": args[1]}, contacts)
-                    print(contacts)
-                else:
-                    print("Insufficient information to change contact.")
+                print(change_contact(args, contacts))
             elif "phone" == command:
-                if len(args) == 1:
-                    show_phone(args[0], contacts)
-                else:
-                    print("There is not enough information to display the number.")
+                print(show_phone(args, contacts))
             elif "all" == command:
-                show_all(contacts)
+                print(show_all(contacts))
             elif "hello"  == command:
                 print("How can I help you?")
             else:

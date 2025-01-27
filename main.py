@@ -21,8 +21,8 @@ def total_salary(path: str)-> None:
     with open(path, 'r', encoding='utf-8') as file:
         salary_list = [int(line.strip().split(',')[-1]) for line in file]
     total = sum(salary_list)
-    average = total // len(salary_list)
-    print(f"Загальна сума заробітної плати: {total}, Середня заробітна плата: {average}")
+    average = total / len(salary_list)
+    return (total, average)
 
 
 
@@ -79,7 +79,7 @@ def list_directory(directory_path: Path, level=0)-> None:
             elif element.is_file():
                 print(f"{indent}|{Fore.GREEN}📜 {element.name}")
 
-                
+
 
 def get_path_from_input()-> None:
     """
@@ -105,7 +105,7 @@ def get_path_from_input()-> None:
 
 
 if __name__ == "__main__":
-    total_salary(salary_file_path)
+    print(total_salary(salary_file_path))
 
     cats_info = get_cats_info(cats_info_path)
     print(cats_info)
